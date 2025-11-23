@@ -8,25 +8,84 @@
         body {
             font-family: 'Microsoft YaHei', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             min-height: 100vh;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: #fff;
             overflow-x: hidden;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        
+
+        /* 封面页 */
+        .cover-page {
+            text-align: center;
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cover-title {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #D4A574, #FFD700, #B8860B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(212,165,116,0.6);
+        }
+        .cover-subtitle {
+            font-size: 1.5em;
+            color: #FFD700;
+            margin-bottom: 40px;
+        }
+        .cover-emoji {
+            font-size: 4em;
+            margin: 30px 0;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .start-btn {
+            padding: 20px 60px;
+            font-size: 1.3em;
+            background: linear-gradient(45deg, #D4A574, #B8860B);
+            border: none;
+            border-radius: 15px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 30px 0;
+        }
+        .start-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 30px rgba(212,165,116,0.8);
+        }
+
+        /* 问卷页 */
+        .survey-page {
+            display: none;
+            flex-direction: column;
+            min-height: 600px;
+        }
+
         /* 进度条 */
         .progress-bar {
             width: 100%;
             height: 6px;
             background: rgba(255,255,255,0.1);
             border-radius: 3px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             overflow: hidden;
         }
         .progress-fill {
@@ -37,7 +96,7 @@
         }
         .progress-text {
             text-align: center;
-            margin-top: 10px;
+            margin-bottom: 20px;
             color: #D4A574;
             font-size: 0.9em;
         }
@@ -45,21 +104,21 @@
         /* 卡片容器 */
         .card-container {
             position: relative;
-            min-height: 500px;
+            flex: 1;
         }
         .card {
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(12px);
             border-radius: 20px;
             padding: 40px;
-            margin-bottom: 30px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.1);
             position: absolute;
             width: 100%;
+            min-height: 400px;
             opacity: 0;
             transform: translateX(100px);
-            transition: all 0.5s ease;
+            transition: all 0.4s ease;
             pointer-events: none;
         }
         .card.active {
@@ -90,11 +149,13 @@
             margin-right: 15px;
         }
         .card-title {
-            font-size: 1.3em;
+            font-size: 1.4em;
             color: #FFD700;
         }
-        .card-content {
-            margin-bottom: 30px;
+        .card-content p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #fff;
         }
         .options label {
             display: block;
@@ -105,10 +166,12 @@
             cursor: pointer;
             transition: all 0.3s;
             border: 2px solid transparent;
+            position: relative;
         }
         .options label:hover {
             background: rgba(212,165,116,0.15);
             border-color: rgba(212,165,116,0.5);
+            transform: translateX(5px);
         }
         .options input[type="radio"] {
             display: none;
@@ -117,12 +180,23 @@
             background: rgba(212,165,116,0.25);
             border-color: #D4A574;
         }
+        .options input[type="radio"]:checked + label::after {
+            content: "✓";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #D4A574;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
 
         /* 导航按钮 */
         .nav-buttons {
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
+            gap: 20px;
         }
         .btn {
             padding: 12px 30px;
@@ -131,6 +205,7 @@
             font-size: 1em;
             cursor: pointer;
             transition: all 0.3s;
+            flex: 1;
         }
         .btn-prev {
             background: rgba(255,255,255,0.1);
@@ -145,22 +220,19 @@
             font-weight: bold;
         }
         .btn-next:hover, .submit-btn:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
             box-shadow: 0 0 20px rgba(212,165,116,0.6);
         }
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            transform: none !important;
         }
 
         /* 结果页 */
         .result-page {
             display: none;
             animation: fadeIn 1s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         .fortune-card {
             background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(212,165,116,0.1));
@@ -172,19 +244,20 @@
             box-shadow: 0 0 30px rgba(212,165,116,0.3);
         }
         .fortune-title {
-            font-size: 2em;
+            font-size: 2.2em;
             margin: 10px 0;
             color: #FFD700;
         }
         .fortune-level {
-            font-size: 1.2em;
+            font-size: 1.3em;
             color: #D4A574;
             margin-bottom: 20px;
         }
         .fortune-text {
-            font-size: 1.1em;
+            font-size: 1.2em;
             line-height: 1.6;
             margin-bottom: 30px;
+            color: #fff;
         }
         .fortune-details {
             display: grid;
@@ -220,32 +293,56 @@
             content: "❌ ";
         }
 
-        /* 免责声明 */
-        .disclaimer {
+        /* 详细条款（仅在封面显示） */
+        .terms-section {
             margin-top: 40px;
-            padding: 20px;
+            padding: 25px;
             background: rgba(0,0,0,0.3);
-            border-radius: 10px;
+            border-radius: 15px;
             font-size: 0.85em;
-            color: #888;
-            line-height: 1.5;
+            color: #bbb;
+            line-height: 1.6;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .terms-section strong {
+            color: #FFD700;
+        }
+        .agreement-notice {
+            color: #D4A574;
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 进度条 -->
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+        <!-- ========== 封面页 ========== -->
+        <div id="coverPage" class="cover-page">
+            <div class="cover-emoji">⚗️</div>
+            <h1 class="cover-title">原神欧非守恒定律检测仪</h1>
+            <p class="cover-subtitle">科学算命，最为致命</p>
+            
+            <div class="terms-section">
+                <p><strong>📜 旅行者须知：</strong></p>
+                <p>1. 本检测仅供娱乐，结果基于虚构算法生成</p>
+                <p>2. 全程匿名，不收集任何账号、设备或隐私信息</p>
+                <p>3. 数据用于统计学课程作业，已匿名化处理</p>
+                <p>4. 官方抽卡概率请以游戏内公示为准（0.6%）</p>
+                <p class="agreement-notice">
+                    点击"开始检测"即代表您同意我们的数据使用条款与隐私政策
+                </p>
+            </div>
+            
+            <button class="start-btn" onclick="startSurvey()">🔮 开始检测</button>
         </div>
-        <div class="progress-text" id="progressText">1 / 7</div>
 
-        <!-- 问卷页 -->
-        <div id="surveyPage">
-            <h1>⚗️ 原神欧非守恒定律检测仪</h1>
-            <p style="text-align:center; color:#FFD700; margin-bottom:30px;">
-                科学算命，最为致命
-            </p>
+        <!-- ========== 问卷页 ========== -->
+        <div id="surveyPage" class="survey-page" style="display:none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">1 / 7</div>
 
             <div class="card-container" id="cardContainer">
                 <!-- 卡片1 -->
@@ -425,13 +522,13 @@
                 <!-- 导航按钮 -->
                 <div class="nav-buttons">
                     <button type="button" class="btn btn-prev" id="prevBtn" disabled>← 上一题</button>
-                    <button type="button" class="btn btn-next" id="nextBtn">下一题 →</button>
+                    <button type="button" class="btn btn-next" id="nextBtn" disabled>下一题 →</button>
                 </div>
             </div>
         </div>
 
-        <!-- 结果页 -->
-        <div id="resultPage" class="result-page">
+        <!-- ========== 结果页 ========== -->
+        <div id="resultPage" class="result-page" style="display:none;">
             <div class="fortune-card">
                 <div class="fortune-title" id="fortuneTitle"></div>
                 <div class="fortune-level" id="fortuneLevel"></div>
@@ -443,15 +540,6 @@
             <div class="debug-info" id="debugInfo"></div>
 
             <button type="button" class="btn" onclick="restart()" style="margin-top: 20px;">重新检测</button>
-        </div>
-
-        <!-- 免责声明 -->
-        <div class="disclaimer">
-            <p><strong>📜 旅行者须知：</strong></p>
-            <p>1. 本检测仅供娱乐，结果基于虚构算法生成</p>
-            <p>2. 不收集任何隐私信息（UID/IP/设备）</p>
-            <p>3. 数据用于统计学课程作业，已匿名化处理</p>
-            <p>4. 官方抽卡概率请以游戏内公示为准（0.6%）</p>
         </div>
     </div>
 
@@ -487,35 +575,41 @@
             'worst-1': { title: '📉 648反向出货·越氪越非', level: '下下签', text: '今日氪金越多，概率越低。白嫖或欧？', good: ['白嫖', '单抽', '下线'], bad: ['氪金', '十连', '冲'] }
         };
 
-        // ========== 当前卡片索引 ==========
+        // ========== 全局变量 ==========
         let currentCard = 1;
         const totalCards = 7;
 
-        // ========== 初始化 ==========
-        document.addEventListener('DOMContentLoaded', function() {
+        // ========== 封面页：开始问卷 ==========
+        function startSurvey() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.getElementById('surveyPage').style.display = 'flex';
             updateProgress();
-            bindEvents();
-        });
+            updateButtons();
+            bindCardEvents();
+        }
 
-        function bindEvents() {
-            // 下一题按钮
-            document.getElementById('nextBtn').addEventListener('click', nextCard);
-            // 上一题按钮
-            document.getElementById('prevBtn').addEventListener('click', prevCard);
-            // 选项变化时启用下一题
+        // ========== 绑定卡片事件 ==========
+        function bindCardEvents() {
+            // 为每个选项添加变化监听
             document.querySelectorAll('input[type="radio"]').forEach(radio => {
                 radio.addEventListener('change', function() {
+                    // 启用下一题按钮
                     document.getElementById('nextBtn').disabled = false;
                 });
             });
+
+            // 导航按钮
+            document.getElementById('prevBtn').addEventListener('click', prevCard);
+            document.getElementById('nextBtn').addEventListener('click', nextCard);
         }
 
         // ========== 卡片切换 ==========
         function nextCard() {
             if (currentCard < totalCards) {
                 // 隐藏当前卡片
-                document.querySelector(`[data-card="${currentCard}"]`).classList.remove('active');
-                document.querySelector(`[data-card="${currentCard}"]`).classList.add('prev');
+                const currentCardEl = document.querySelector(`[data-card="${currentCard}"]`);
+                currentCardEl.classList.remove('active');
+                currentCardEl.classList.add('prev');
                 
                 // 显示下一张卡片
                 currentCard++;
@@ -530,7 +624,8 @@
         function prevCard() {
             if (currentCard > 1) {
                 // 隐藏当前卡片
-                document.querySelector(`[data-card="${currentCard}"]`).classList.remove('active');
+                const currentCardEl = document.querySelector(`[data-card="${currentCard}"]`);
+                currentCardEl.classList.remove('active');
                 
                 // 显示上一张卡片
                 currentCard--;
@@ -543,6 +638,7 @@
             }
         }
 
+        // ========== 更新进度和按钮 ==========
         function updateProgress() {
             const progress = (currentCard / totalCards) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
@@ -553,8 +649,15 @@
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
             
+            // 更新上一题按钮
             prevBtn.disabled = currentCard === 1;
             
+            // 检查当前卡片是否已选择
+            const currentCardEl = document.querySelector(`[data-card="${currentCard}"]`);
+            const selected = currentCardEl.querySelector('input[type="radio"]:checked');
+            nextBtn.disabled = !selected;
+            
+            // 更新下一题按钮文本和功能
             if (currentCard === totalCards) {
                 nextBtn.textContent = '🔮 生成能量印记';
                 nextBtn.classList.remove('btn-next');
@@ -566,11 +669,6 @@
                 nextBtn.classList.add('btn-next');
                 nextBtn.onclick = nextCard;
             }
-            
-            // 检查当前卡片是否已选选项
-            const currentCardEl = document.querySelector(`[data-card="${currentCard}"]`);
-            const selected = currentCardEl.querySelector('input[type="radio"]:checked');
-            nextBtn.disabled = !selected;
         }
 
         // ========== 提交问卷 ==========
@@ -599,7 +697,7 @@
         // ========== 收集答案 ==========
         function collectAnswers() {
             const answers = [];
-            for (let i = 1; i <= 7; i++) {
+            for (let i = 1; i <= totalCards; i++) {
                 const selected = document.querySelector(`input[name="q${i}"]:checked`);
                 if (!selected) {
                     alert(`请回答第${i}题！`);
@@ -612,15 +710,15 @@
 
         // ========== 验证答案 ==========
         function validateAnswers(answers) {
-            const q1 = parseInt(answers[0]);
-            const q4 = parseInt(answers[3]);
+            const q1 = parseInt(answers[0]); // 声称活跃度
+            const q4 = parseInt(answers[3]); // 实际天数
             
             if (q1 >= 3 && q4 <= 2) {
                 return { valid: false, reason: '声称300分钟但实际只上线1-2天' };
             }
             
-            const q6 = parseInt(answers[5]);
-            const q7 = parseInt(answers[6]);
+            const q6 = parseInt(answers[5]); // 圣遗物手气
+            const q7 = parseInt(answers[6]); // 直觉强度
             if (q7 >= 9 && q6 >= 3) {
                 return { valid: false, reason: '直觉10分但自认非酋' };
             }
@@ -675,7 +773,6 @@
             `;
             document.getElementById('fortuneDetails').innerHTML = detailsHTML;
             
-            // 调试信息
             const weekday = getCurrentWeekday();
             const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
             document.getElementById('debugInfo').innerHTML = `
@@ -700,9 +797,6 @@
             console.log('准备提交的数据:', data);
             document.getElementById('debugInfo').innerHTML += 
                 `<p style="color:#4CAF50;">✅ 数据收集成功（请配置GitHub API）</p>`;
-            
-            // 实际项目中应调用GitHub API
-            // await fetch('https://api.github.com/repos/...', {...});
         }
 
         // ========== 重新开始 ==========
@@ -712,20 +806,21 @@
                 radio.checked = false;
             });
             
-            // 重置卡片
+            // 重置卡片状态
             document.querySelectorAll('.card').forEach(card => {
                 card.classList.remove('active', 'prev');
             });
             document.querySelector('[data-card="1"]').classList.add('active');
             
-            // 重置状态
+            // 重置变量
             currentCard = 1;
             updateProgress();
             updateButtons();
             
-            // 显示问卷页
-            document.getElementById('surveyPage').style.display = 'block';
+            // 显示封面页
             document.getElementById('resultPage').style.display = 'none';
+            document.getElementById('surveyPage').style.display = 'none';
+            document.getElementById('coverPage').style.display = 'block';
         }
     </script>
 </body>
