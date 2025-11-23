@@ -91,6 +91,39 @@
             text-align: center;
         }
 
+        /* Token输入框样式 */
+        .token-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            border: 1px solid rgba(212,165,116,0.3);
+        }
+        .token-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #FFD700;
+            font-size: 0.9em;
+        }
+        .token-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #D4A574;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.85em;
+        }
+        .token-input::placeholder {
+            color: #888;
+        }
+        .token-hint {
+            margin-top: 8px;
+            font-size: 0.75em;
+            color: #aaa;
+            text-align: left;
+        }
+
         /* 问卷页 */
         .survey-page {
             display: none;
@@ -357,6 +390,17 @@
                     点击"开始检测"即代表您同意我们的数据使用条款与隐私政策
                 </p>
             </div>
+
+            <!-- Token输入框（仅团队可见） -->
+            <div class="token-section">
+                <label class="token-label">🔐 团队数据收集Token（仅内部人员填写）：</label>
+                <input type="password" id="ghToken" class="token-input" 
+                       placeholder="输入GitHub Personal Access Token">
+                <div class="token-hint">
+                    如需收集数据，请填写具有repo权限的GitHub Token。<br>
+                    此Token仅用于存储匿名问卷数据，不会泄露给第三方。
+                </div>
+            </div>
             
             <button class="start-btn" onclick="startSurvey()">🔮 开始检测</button>
         </div>
@@ -594,6 +638,22 @@
     </div>
 
     <script>
+        // ========== GitHub配置（关键！）==========
+        const GITHUB_CONFIG = {
+            // ⚠️ 修改为你的GitHub用户名
+            owner: '你的GitHub用户名',
+            // ⚠️ 修改为你的仓库名
+            repo: '你的仓库名',
+            // 文件路径（不需要改）
+            path: 'visitor-data.json',
+            // 分支名（不需要改）
+            branch: 'main',
+            // 安全获取Token（从输入框读取，不会硬编码）
+            get token() {
+                return document.getElementById('ghToken')?.value || '';
+            }
+        };
+
         // ========== 适宜项池子（按签等级分类） ==========
         const GOOD_POOLS = {
             top: ['单抽出奇迹', '十连梭哈', '武器池许愿', '角色池', '常驻垫刀', '抽取限定UP', '冲命座', '抽专武'],
@@ -887,8 +947,16 @@
             `;
         }
 
-        // ========== 提交数据 ==========
+        // ========== 提交数据到GitHub（重写） ==========
         async function submitToGitHub(answers, fortuneId, fortuneLevel, validation) {
+            // 如果没有Token，只显示在控制台，不提交
+            if (!GITHUB_CONFIG.token) {
+                console.log('⚠️ 未提供GitHub Token，数据仅显示在控制台');
+                document.getElementById('debugInfo').innerHTML += 
+                    `<p style="color:#FFA500;">⚠️ 未提供Token，数据未提交到GitHub</p>`;
+                return;
+            }
+
             const data = {
                 answers: answers,
                 fortune_id: fortuneId,
@@ -898,10 +966,79 @@
                 valid_sample: validation.valid,
                 validation_issues: validation.issues
             };
-            
-            console.log('准备提交的数据:', data);
+
+            // 显示提交中状态
             document.getElementById('debugInfo').innerHTML += 
-                `<p style="color:#4CAF50;">✅ 数据收集成功（控制台查看）</p>`;
+                `<p style="color:#FFD700;">⏳ 正在提交数据到GitHub...</p>`;
+
+            try {
+                // 1. 获取现有文件（需要sha来更新）
+                const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+                
+                let sha = null;
+                let existingContent = [];
+                
+                try {
+                    const getResponse = await fetch(getUrl, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (getResponse.ok) {
+                        const fileData = await getResponse.json();
+                        sha = fileData.sha;
+                        // 解码现有内容
+                        const existingJson = atob(fileData.content);
+                        existingContent = JSON.parse(existingJson);
+                        // 确保是数组
+                        if (!Array.isArray(existingContent)) {
+                            existingContent = [];
+                        }
+                    }
+                } catch (error) {
+                    console.log('文件不存在或读取失败，将创建新文件');
+                    existingContent = [];
+                }
+
+                // 2. 追加新数据
+                existingContent.push(data);
+
+                // 3. 更新文件
+                const updateUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+                
+                const updateResponse = await fetch(updateUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Add visitor data - ${new Date().toISOString()}`,
+                        content: btoa(JSON.stringify(existingContent, null, 2)),
+                        branch: GITHUB_CONFIG.branch,
+                        sha: sha  // 如果是更新现有文件，需要提供sha
+                    })
+                });
+
+                if (updateResponse.ok) {
+                    console.log('✅ 数据提交成功！', data);
+                    document.getElementById('debugInfo').innerHTML += 
+                        `<p style="color:#4CAF50;">✅ 数据已成功提交到GitHub！</p>`;
+                } else {
+                    const errorData = await updateResponse.json();
+                    console.error('提交失败:', errorData);
+                    document.getElementById('debugInfo').innerHTML += 
+                        `<p style="color:#f44336;">❌ 提交失败: ${errorData.message}</p>`;
+                }
+
+            } catch (error) {
+                console.error('网络错误:', error);
+                document.getElementById('debugInfo').innerHTML += 
+                    `<p style="color:#f44336;">❌ 网络错误: ${error.message}</p>`;
+            }
         }
 
         // ========== 重新开始 ==========
