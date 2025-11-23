@@ -53,80 +53,89 @@
     </div>
 
     <script>
-        // 金数据收集器地址（替换你的）
-        const JINSHUJU_URL = 'https://5rrhdr8j.jsjform.com/f/fj9wGf';
+    // 金数据表单地址（你的）
+    const JINSHUJU_URL = 'https://5rrhdr8j.jsjform.com/f/fj9wGf';
 
-        // 表单提交事件
-        document.getElementById('testForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // 1. 获取用户选择的值
-            const weekday = document.querySelector('input[name="weekday"]:checked');
-            if (!weekday) {
-                alert('请选择一个选项！');
-                return;
-            }
-
-            const value = parseInt(weekday.value);
-            
-            // 2. 计算运势 = weekday * 21 % 100
-            const luck = (value * 21) % 100;
-            
-            // 3. 显示结果
-            showResult(luck, value);
-            
-            // 4. 异步提交到金数据（不影响用户体验）
-            submitToJinshuju(value, luck);
-        });
-
-        // 显示运势结果
-        function showResult(luck, weekday) {
-            document.getElementById('luckScore').textContent = luck + '%';
-            
-            let text = '';
-            if (luck > 70) text = '🌟 大吉！今天适合抽卡';
-            else if (luck > 40) text = '✨ 中吉，可以试一试';
-            else text = '💀 小凶，建议攒原石';
-            
-            document.getElementById('luckText').textContent = text;
-            document.getElementById('result').style.display = 'block';
-            
-            // 滚动到结果
-            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+    // 表单提交事件
+    document.getElementById('testForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // 1. 获取用户选择的值
+        const weekday = document.querySelector('input[name="weekday"]:checked');
+        if (!weekday) {
+            alert('请选择一个选项！');
+            return;
         }
 
-        // 提交数据到金数据（Fetch版本）
-        async function submitToJinshuju(data, luckScore) {
-            try {
-                // 你的金数据地址（已配置）
-                const JINSHUJU_URL = 'https://5rrhdr8j.jsjform.com/f/fj9wGf';
-                
-                // 构造提交参数
-                const params = new URLSearchParams({
-                    'weekday': data.weekday,
-                    'luck_score': luckScore.toFixed(1),
-                    'timestamp': Date.now()
-                });
-                
-                const submitUrl = `${JINSHUJU_URL}?${params.toString()}`;
-                
-                // 使用 fetch 提交（更可靠）
-                const response = await fetch(submitUrl, {
-                    method: 'GET',
-                    mode: 'no-cors', // 关键：绕过跨域限制
-                    cache: 'no-cache'
-                });
-                
-                // 更新状态
-                document.getElementById('status').innerHTML = '✅ 收集成功';
-                document.getElementById('status').style.color = '#4CAF50';
-                console.log('数据收集成功:', submitUrl);
-                
-            } catch (error) {
-                console.error('收集失败:', error);
-                document.getElementById('status').innerHTML = '⚠️ 收集失败';
-            }
-        }
-    </script>
+        const value = parseInt(weekday.value);
+        
+        // 2. 计算运势
+        const luck = (value * 21) % 100;
+        
+        // 3. 显示结果
+        showResult(luck, value);
+        
+        // 4. POST提交到金数据（关键改动）
+        submitToJinshuju(value, luck);
+    });
+
+    // 显示结果
+    function showResult(luck, weekday) {
+        document.getElementById('luckScore').textContent = luck + '%';
+        
+        let text = '';
+        if (luck > 70) text = '🌟 大吉！今天适合抽卡';
+        else if (luck > 40) text = '✨ 中吉，可以试一试';
+        else text = '💀 小凶，建议攒原石';
+        
+        document.getElementById('luckText').textContent = text;
+        document.getElementById('result').style.display = 'block';
+    }
+
+    // 核心：POST提交到金数据
+    function submitToJinshuju(weekday, luckScore) {
+        // 创建隐藏的iframe
+        const iframe = document.createElement('iframe');
+        iframe.name = 'jinshuju_target';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        
+        // 创建表单
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = JINSHUJU_URL;
+        form.target = 'jinshuju_target';
+        
+        // 添加隐藏字段
+        const addField = (name, value) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        };
+        
+        addField('weekday', weekday);
+        addField('luck_score', luckScore.toFixed(1));
+        
+        // 提交
+        document.body.appendChild(form);
+        form.submit();
+        
+        // 清理表单
+        setTimeout(() => {
+            document.body.removeChild(form);
+        }, 1000);
+        
+        // 显示成功状态
+        document.getElementById('status').innerHTML = '✅ 收集成功（5秒后请刷新金数据后台）';
+        document.getElementById('status').style.color = '#4CAF50';
+        
+        // 5秒后提示验证
+        setTimeout(() => {
+            document.getElementById('status').innerHTML = '✅ 请去金数据后台验证数据';
+        }, 5000);
+    }
+</script>
 </body>
 </html>
