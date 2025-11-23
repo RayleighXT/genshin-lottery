@@ -633,6 +633,30 @@
 
             <div class="debug-info" id="debugInfo"></div>
 
+            <button id="btnUpload"
+        style="margin-top:20px;padding:10px 20px;background:#238636;color:#fff;border:none;border-radius:6px;cursor:pointer;">
+    📤 匿名上传结果（仅需要点一次绿色按钮）
+</button>
+
+<script>
+document.getElementById('btnUpload').onclick = () => {
+    // 把你要上传的字段打包
+    const payload = {
+        answers: answers,          // 你之前 collectAnswers() 得到的数组
+        fortune_id: fortuneId,     // 你之前算出的 'top-1' 等
+        fortune_level: fortune.level,
+        timestamp: new Date().toISOString()
+    };
+    // 构造 GitHub 新建 Issue 链接
+    const repo = 'RayleighXT/genshin-fortune-data';   // ⚠️ 改成你的
+    const title = '原神欧非检测结果';
+    const body = '```json\n' + JSON.stringify(payload, null, 2) + '\n```';
+    const url = `https://github.com/${repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+    // 弹出新标签页
+    window.open(url, '_blank');
+};
+</script>
+            
             <button type="button" class="btn" onclick="restart()" style="margin-top: 20px;">重新检测</button>
         </div>
     </div>
