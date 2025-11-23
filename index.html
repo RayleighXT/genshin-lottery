@@ -658,6 +658,43 @@ document.getElementById('btnUpload').onclick = () => {
 </script>
             
             <button type="button" class="btn" onclick="restart()" style="margin-top: 20px;">重新检测</button>
+            <!-- ★ 匿名上传按钮 -->
+<button id="btnUpload"
+        style="margin-top:20px;padding:10px 20px;background:#238636;color:#fff;border:none;border-radius:6px;cursor:pointer;">
+    📤 匿名上传结果（仅需要点一次绿色按钮）
+</button>
+
+<script>
+(function(){
+    /* ---------- 1. 把结果页已经显示的信息抓出来 ---------- */
+    const title   = document.getElementById('fortuneTitle').textContent.trim();
+    const level   = document.getElementById('fortuneLevel').textContent.trim(); // 「上上签」等
+    const text    = document.getElementById('fortuneText').textContent.trim();
+
+    /* 如果你前面把答案序列写进了 debugInfo，也可以直接拿： */
+    const debugMatch = document.getElementById('debugInfo').textContent.match(/答案序列：(.+)/);
+    const answers = debugMatch ? debugMatch[1].split(' | ') : []; // 没有就空数组
+
+    /* ---------- 2. 打包成要上传的对象 ---------- */
+    const payload = {
+        answers: answers,
+        fortune_id: title.replace(/\s+/g,' '),      // 保留emoji
+        fortune_level: level.replace(/[「」]/g,''), // 去掉括号
+        fortune_text: text,
+        timestamp: new Date().toISOString()
+    };
+
+    /* ---------- 3. 按钮事件 ---------- */
+    document.getElementById('btnUpload').onclick = function(){
+        const repo  = 'yourname/genshin-fortune-data';   // ⚠️ 改成你的数据仓库
+        const body  = '```json\n' + JSON.stringify(payload,null,2) + '\n```';
+        const url   = `https://github.com/${repo}/issues/new?title=` +
+                      encodeURIComponent('原神欧非检测结果') +
+                      '&body=' + encodeURIComponent(body);
+        window.open(url, '_blank');   // 新标签打开发帖页面
+    };
+})();
+</script>
         </div>
     </div>
 
