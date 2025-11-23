@@ -2,42 +2,130 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>技术测试页面</title>
+    <title>运势测试器</title>
     <style>
-        body { font-family: Arial; text-align: center; padding: 50px; background: #f5f5f5; }
-        .box { background: white; padding: 40px; border-radius: 10px; max-width: 600px; margin: 0 auto; }
-        .success { color: #4CAF50; font-size: 48px; margin: 20px; }
-        .param { background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; }
+        .question h2 { color: #333; }
+        .options label { display: block; margin: 15px 0; padding: 10px; background: #f9f9f9; border-radius: 5px; cursor: pointer; }
+        .options input { margin-right: 10px; }
+        .submit-btn { 
+            background: #4CAF50; color: white; padding: 12px 30px; 
+            border: none; border-radius: 5px; font-size: 16px; 
+            cursor: pointer; margin-top: 20px; width: 100%;
+        }
+        .result { 
+            display: none; margin-top: 30px; padding: 20px; 
+            background: #e8f5e9; border-radius: 10px; text-align: center;
+        }
+        .luck-score { font-size: 48px; color: #D4A574; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <div class="success">✅ 测试成功！</div>
-        <h1>技术链路验证报告</h1>
-        <div class="param">
-            <p><strong>接收到的参数：</strong></p>
-            <p id="param-display">正在获取...</p>
+    <div class="container">
+        <h1>🎲 抽卡运势测试器</h1>
+        
+        <form id="testForm">
+            <div class="question">
+                <h2>今天是星期几？</h2>
+                <div class="options">
+                    <label><input type="radio" name="weekday" value="0">星期日</label>
+                    <label><input type="radio" name="weekday" value="1">星期一</label>
+                    <label><input type="radio" name="weekday" value="2">星期二</label>
+                    <label><input type="radio" name="weekday" value="3">星期三</label>
+                    <label><input type="radio" name="weekday" value="4">星期四</label>
+                    <label><input type="radio" name="weekday" value="5">星期五</label>
+                    <label><input type="radio" name="weekday" value="6">星期六</label>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">生成运势报告</button>
+        </form>
+
+        <div id="result" class="result">
+            <h2>✨ 你的抽卡运势</h2>
+            <div class="luck-score" id="luckScore"></div>
+            <p id="luckText"></p>
+            <p style="color:#999; font-size:14px;">
+                数据已收集 · <span id="status"></span>
+            </p>
         </div>
-        <p style="color:#999; font-size:14px;">
-            如果上方显示"ID: 数字"，说明金数据→GitHub Pages数据传输正常。
-        </p>
     </div>
 
     <script>
-        // 获取URL参数
-        function getParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
+        // 金数据收集器地址（替换你的）
+        const JINSHUJU_URL = 'https://5rrhdr8j.jsjform.com/f/fj9wGf';
+
+        // 表单提交事件
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 1. 获取用户选择的值
+            const weekday = document.querySelector('input[name="weekday"]:checked');
+            if (!weekday) {
+                alert('请选择一个选项！');
+                return;
+            }
+
+            const value = parseInt(weekday.value);
+            
+            // 2. 计算运势 = weekday * 21 % 100
+            const luck = (value * 21) % 100;
+            
+            // 3. 显示结果
+            showResult(luck, value);
+            
+            // 4. 异步提交到金数据（不影响用户体验）
+            submitToJinshuju(value, luck);
+        });
+
+        // 显示运势结果
+        function showResult(luck, weekday) {
+            document.getElementById('luckScore').textContent = luck + '%';
+            
+            let text = '';
+            if (luck > 70) text = '🌟 大吉！今天适合抽卡';
+            else if (luck > 40) text = '✨ 中吉，可以试一试';
+            else text = '💀 小凶，建议攒原石';
+            
+            document.getElementById('luckText').textContent = text;
+            document.getElementById('result').style.display = 'block';
+            
+            // 滚动到结果
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 页面加载时显示参数
-        window.onload = function() {
-            const id = getParam('id') || '未收到参数';
-            document.getElementById('param-display').innerHTML = 
-                `<strong style="color:#2196F3;">ID: ${id}</strong>`;
-            
-            // 额外验证：显示完整URL（调试用）
-            console.log('完整URL:', window.location.href);
+        // 提交数据到金数据
+        async function submitToJinshuju(weekday, luck) {
+            try {
+                // 构造提交参数
+                const params = new URLSearchParams({
+                    'weekday': weekday,          // 用户选择的星期几
+                    'luck_score': luck,          // 计算出的运势值
+                    'timestamp': Date.now()      // 提交时间戳
+                });
+                
+                const submitUrl = `${JINSHUJU_URL}?${params.toString()}`;
+                
+                // 使用Image方式异步提交
+                const img = new Image();
+                img.src = submitUrl;
+                
+                // 状态反馈
+                img.onload = function() {
+                    document.getElementById('status').innerHTML = '✅ 收集成功';
+                    document.getElementById('status').style.color = '#4CAF50';
+                    console.log('数据收集成功:', submitUrl);
+                };
+                
+                img.onerror = function() {
+                    document.getElementById('status').innerHTML = '⚠️ 收集失败';
+                    console.warn('收集失败，但不影响报告显示');
+                };
+                
+            } catch (error) {
+                console.error('提交错误:', error);
+            }
         }
     </script>
 </body>
