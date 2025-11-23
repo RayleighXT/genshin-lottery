@@ -634,7 +634,7 @@
             <div class="debug-info" id="debugInfo"></div>
             
             <button type="button" class="btn" onclick="restart()" style="margin-top: 20px;">重新检测</button>
-            <!-- ★ 匿名上传按钮 -->
+<!-- ★ 匿名上传按钮 -->
 <button id="btnUpload"
         style="margin-top:20px;padding:10px 20px;background:#238636;color:#fff;border:none;border-radius:6px;cursor:pointer;">
     📤 匿名上传结果（仅需要点一次绿色按钮）
@@ -662,7 +662,7 @@
 
     /* ---------- 3. 按钮事件 ---------- */
     document.getElementById('btnUpload').onclick = function(){
-        const repo  = 'yourname/genshin-fortune-data';   // ⚠️ 改成你的数据仓库
+        const repo  = 'RayleighXT/genshin-fortune-data';   // ⚠️ 已改成你的数据仓库
         const body  = '```json\n' + JSON.stringify(payload,null,2) + '\n```';
         const url   = `https://github.com/${repo}/issues/new?title=` +
                       encodeURIComponent('原神欧非检测结果') +
