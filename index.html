@@ -374,22 +374,22 @@
                 <div class="card active" data-card="1">
                     <div class="card-header">
                         <div class="card-number">1</div>
-                        <div class="card-title">每日上线习惯</div>
+                        <div class="card-title">提瓦特生活节奏调查</div>
                     </div>
                     <div class="card-content">
-                        <p>你平均每天在《原神》里花费多少时间？</p>
+                        <p>最近一周，你探索提瓦特的频率是？</p>
                         <div class="options">
                             <input type="radio" id="q1_1" name="q1" value="1" onchange="enableNext(1)">
-                            <label for="q1_1">不到30分钟（领个月卡就跑）</label>
+                            <label for="q1_1">随缘登录（想起来看一眼）</label>
                             
                             <input type="radio" id="q1_2" name="q1" value="2" onchange="enableNext(1)">
-                            <label for="q1_2">30-120分钟（清委托+树脂）</label>
+                            <label for="q1_2">每日清日常（委托+树脂）</label>
                             
                             <input type="radio" id="q1_3" name="q1" value="3" onchange="enableNext(1)">
-                            <label for="q1_3">2-5小时（沉浸式探索）</label>
+                            <label for="q1_3">深度探索（解谜+刷材料）</label>
                             
                             <input type="radio" id="q1_4" name="q1" value="4" onchange="enableNext(1)">
-                            <label for="q1_4">5小时以上（提瓦特是我家）</label>
+                            <label for="q1_4">肝帝模式（全地图清空）</label>
                         </div>
                     </div>
                     <div class="card-nav">
@@ -820,7 +820,14 @@
             
             // 从答案+签ID生成哈希，确保不重复
             const hash = hashString(answers.join('') + fortuneId);
-            const poolKey = level.toLowerCase().replace('签', '');
+            
+            // 修复：正确映射等级到池子键名
+            const levelMap = {
+                '上签': 'good',
+                '中签': 'mid',
+                '下签': 'bad'
+            };
+            const poolKey = levelMap[level] || 'mid';
             
             const goodPool = [...GOOD_POOLS[poolKey]];
             const badPool = [...BAD_POOLS[poolKey]];
